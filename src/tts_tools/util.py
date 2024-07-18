@@ -51,7 +51,6 @@ class ZipFile(zipfile.ZipFile):
             super().__exit__(*args, **kwargs)
 
     def write(self, filename, *args, **kwargs):
-
         if filename in self.stored_files:
             return
 
@@ -79,6 +78,12 @@ class ZipFile(zipfile.ZipFile):
                 super().write(filename, *args, **kwargs)
             except FileNotFoundError:
                 assert self.ignore_missing
+
+                if filename.endswith(".jpg"): # Some steamusercontent files are png but you cannot tell from the url...
+                    try:
+                        super().write(filename.replace(".jpg",".png"), *args, **kwargs)
+                    except FileNotFoundError:
+                        log_skipped()
                 log_skipped()
             else:
                 log_written()
